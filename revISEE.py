@@ -44,7 +44,6 @@ class Statement:
         self._compute_starting_balance()
 
     def _load_csv(self):
-        # FIXME: Revolut statements flush text in a new line if the maximum length is exceeded. This messes with parsing
         # csv columns:
         #   0: 'Completed Date'
         #   1: 'Description'
