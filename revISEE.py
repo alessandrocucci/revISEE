@@ -4,6 +4,7 @@ import logging
 import re
 from datetime import date, timedelta
 import argparse
+from io import StringIO
 
 import numpy as np
 import pandas as pd
@@ -17,6 +18,16 @@ logger = logging.getLogger(__name__)
 
 curr_rates = CurrencyRates()
 one_day = timedelta(days=1)
+
+
+def strip_csv(file):
+    content = open(file, "r").readlines()
+    new_content = ''
+    for line in content:
+        if re.match('[^;]+;[^;]+;[^;]+;[^;]+;[^;]+;[^;]+;[^;]+;[^;]+', line):
+            new_content = new_content + line + '\n'
+
+    return StringIO(new_content)
 
 
 class Statement:
@@ -45,33 +56,36 @@ class Statement:
         #   7: 'Category'
         #   8: 'Notes'
 
-        self.csv = pd.read_csv(filepath_or_buffer=self.csv_file, delimiter=r'\s*;\s*', engine='python',
+        self.csv = pd.read_csv(filepath_or_buffer=strip_csv(self.csv_file), delimiter=r'\s*;\s*', engine='python',
                                thousands=self.thousands_sep, decimal=self.dec_sep, dtype={2: np.float64,
                                                                                           3: np.float64,
                                                                                           6: np.float64})
 
         self.csv.iloc[:, 0] = self.csv.iloc[:, 0].apply(lambda x: parse(x).date())
 
-        if len(self.csv) < 1:
-            logger.warning('{} statement has no entries for year {}'.format(self.currency, self.year))
-            raise NotImplementedError('Empty statements are not handled and likely to conflict with following code')
-
         # TODO: check if dates are in ascending order
         # TODO: parse file name to check if the required interval is available
         self.csv = self.csv.loc[[entry_date.year == self.year for entry_date in self.csv.iloc[:, 0]]]
+
+        if len(self.csv) == 0:
+            logger.warning('{} statement has no entries for year {}'.format(self.currency, self.year))
 
         logger.info('{} statement for {} correctly imported'.format(self.currency, self.year))
 
     def _compute_starting_balance(self):
         # From first balance of the year (last entry), subtract paid in and add paid out
-        self._starting_balance = self.csv.iloc[-1, 6] + \
-                                 (0 if np.isnan(self.csv.iloc[-1, 2]) else self.csv.iloc[-1, 2]) - \
-                                 (0 if np.isnan(self.csv.iloc[-1, 3]) else self.csv.iloc[-1, 3])
+        if len(self.csv) == 0:
+            self._starting_balance = 0
+        else:
+            self._starting_balance = self.csv.iloc[-1, 6] + \
+                                     (0 if np.isnan(self.csv.iloc[-1, 2]) else self.csv.iloc[-1, 2]) - \
+                                     (0 if np.isnan(self.csv.iloc[-1, 3]) else self.csv.iloc[-1, 3])
 
     def get_eoy_balance(self, target_currency: str = 'EUR'):
         logger.info('Computing EOY balance for {}'.format(self.currency))
-        return curr_rates.convert(self.currency, target_currency,
-                                  self.csv.iloc[0, 6], date(year=self.year, month=12, day=31))
+        return 0 if len(self.csv) == 0 else curr_rates.convert(self.currency, target_currency,
+                                                               self.csv.iloc[0, 6],
+                                                               date(year=self.year, month=12, day=31))
 
     def get_averaged_daily_balance(self, target_currency: str = 'EUR'):
         logger.info('Computing averaged daily balance for {}'.format(self.currency))

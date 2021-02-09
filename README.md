@@ -5,6 +5,8 @@ Compute the averaged daily balance and the end of year balance for your Revolut 
 Requirements:
 * [forex-python](https://pypi.org/project/forex-python/)
 * [dateparser](https://pypi.org/project/dateparser/)
+* pandas
+* numpy
 ```
 usage: python revISEE.py [options]
 
