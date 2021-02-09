@@ -103,15 +103,15 @@ def parse_args():
     arg_parser = argparse.ArgumentParser(prog='revISEE',
                                          usage='python revISEE.py [options]',
                                          description='Compute values required for italian ISEE from Revolut statements',
-                                         epilog='For help pietropelizzari@live.it')
+                                         epilog='MIT License - Copyright (c) 2021 Pietro Pelizzari')
 
     # Add the arguments
     arg_parser.add_argument('-v',
                             '--verbose',
                             action='store_true')
-    arg_parser.add_argument('-f',
-                            '--folder',
-                            help='path to statements folder - default: current folder')
+    arg_parser.add_argument('-p',
+                            '--path',
+                            help='path to statements path - default: cwd')
     arg_parser.add_argument('-y',
                             '--year',
                             help='year for computation - default: 2 years ago')
@@ -155,10 +155,10 @@ def main():
     else:
         user_year = inputs.year
 
-    if inputs.folder is None:
+    if inputs.path is None:
         statements_path = os.getcwd()
     else:
-        statements_path = inputs.folder
+        statements_path = inputs.path
 
     if inputs.verbose:
         logger.setLevel(logging.INFO)
