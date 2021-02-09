@@ -1,8 +1,9 @@
-import os.path
+import os
 import glob
 import logging
 import re
 from datetime import date, timedelta
+import argparse
 
 import numpy as np
 import pandas as pd
@@ -10,11 +11,9 @@ import pandas as pd
 from dateparser import parse
 from forex_python.converter import CurrencyRates
 
-
 logging.basicConfig(level=logging.CRITICAL)
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 curr_rates = CurrencyRates()
 one_day = timedelta(days=1)
@@ -46,7 +45,7 @@ class Statement:
         #   7: 'Category'
         #   8: 'Notes'
 
-        self.csv = pd.read_csv(filepath_or_buffer=self.csv_file, delimiter=r'\s*;\s*',
+        self.csv = pd.read_csv(filepath_or_buffer=self.csv_file, delimiter=r'\s*;\s*', engine='python',
                                thousands=self.thousands_sep, decimal=self.dec_sep, dtype={2: np.float64,
                                                                                           3: np.float64,
                                                                                           6: np.float64})
@@ -74,8 +73,8 @@ class Statement:
         return curr_rates.convert(self.currency, target_currency,
                                   self.csv.iloc[0, 6], date(year=self.year, month=12, day=31))
 
-    def get_average_daily_balance(self, target_currency: str = 'EUR'):
-        logger.info('Computing average daily balance for {}'.format(self.currency))
+    def get_averaged_daily_balance(self, target_currency: str = 'EUR'):
+        logger.info('Computing averaged daily balance for {}'.format(self.currency))
         reduced_csv = self.csv.drop_duplicates(subset=[self.csv.columns[0]])
         balance = self._starting_balance
         day = date(year=self.year, month=1, day=1)
@@ -99,16 +98,76 @@ class Statement:
         return total_daily_balance / ((date(self.year, 12, 31) - date(self.year, 1, 1)).days + 1)
 
 
-if __name__ == "__main__":
+def parse_args():
+    # Create the parser
+    arg_parser = argparse.ArgumentParser(prog='revISEE',
+                                         usage='python revISEE.py [options]',
+                                         description='Compute values required for italian ISEE from Revolut statements',
+                                         epilog='For help pietropelizzari@live.it')
+
+    # Add the arguments
+    arg_parser.add_argument('-v',
+                            '--verbose',
+                            action='store_true')
+    arg_parser.add_argument('-f',
+                            '--folder',
+                            help='path to statements folder - default: current folder')
+    arg_parser.add_argument('-y',
+                            '--year',
+                            help='year for computation - default: 2 years ago')
+    arg_parser.add_argument('-c',
+                            '--curr',
+                            help='target currency - default: EUR')
+    arg_parser.add_argument('--decsep',
+                            help='decimal separator - default: .')
+    arg_parser.add_argument('--thosep',
+                            help='thousands separator - default: ,')
+    arg_parser.add_argument('--detailed',
+                            action='store_true',
+                            help='print balances for each currency')
+
+    # Execute the parse_args() method
+    args = arg_parser.parse_args()
+    return args
+
+
+def main():
+    inputs = parse_args()
+
     # User settings
-    user_dec_sep = '.'
-    user_thousands_sep = ','
-    user_year = date.today().year - 2
-    user_target_curr = 'EUR'
-    statements_path = r""
+    if inputs.decsep is None:
+        user_dec_sep = '.'
+    else:
+        user_dec_sep = inputs.decsep
+
+    if inputs.thosep is None:
+        user_thousands_sep = ','
+    else:
+        user_thousands_sep = inputs.thosep
+
+    if inputs.curr is None:
+        user_target_curr = 'EUR'
+    else:
+        user_target_curr = inputs.curr
+
+    if inputs.year is None:
+        user_year = date.today().year - 2
+    else:
+        user_year = inputs.year
+
+    if inputs.folder is None:
+        statements_path = os.getcwd()
+    else:
+        statements_path = inputs.folder
+
+    if inputs.verbose:
+        logger.setLevel(logging.INFO)
 
     # Import list of relevant files
     files = glob.glob(os.path.join(statements_path, "Revolut*.csv"))
+
+    if len(files) == 0:
+        raise Exception('No statements files found in the specified directory')
 
     statements = []
 
@@ -121,8 +180,17 @@ if __name__ == "__main__":
     overall_eoy_balance = 0
 
     for entry in statements:
-        overall_gma = overall_gma + entry.get_average_daily_balance(user_target_curr)
+        overall_gma = overall_gma + entry.get_averaged_daily_balance(user_target_curr)
         overall_eoy_balance = overall_eoy_balance + entry.get_eoy_balance(user_target_curr)
+        if inputs.detailed:
+            print('{} EOY balance for {}: {:.2f} {}'.
+                  format(entry.currency, user_year, entry.get_eoy_balance(entry.currency), entry.currency))
+            print('{} averaged daily balance for {}: {:.2f} {}'.
+                  format(entry.currency, user_year, entry.get_averaged_daily_balance(entry.currency), entry.currency))
 
-    print('Overall EOY balance for {}: {} {}'.format(user_year, overall_eoy_balance, user_target_curr))
-    print('Overall average daily balance for {}: {} {}'.format(user_year, overall_gma, user_target_curr))
+    print('Overall EOY balance for {}: {:.2f} {}'.format(user_year, overall_eoy_balance, user_target_curr))
+    print('Overall averaged daily balance for {}: {:.2f} {}'.format(user_year, overall_gma, user_target_curr))
+
+
+if __name__ == "__main__":
+    main()
