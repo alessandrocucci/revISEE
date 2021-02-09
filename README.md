@@ -34,3 +34,5 @@ optional arguments:
 
 MIT License - Copyright (c) 2021 Pietro Pelizzari
 ```
+
+This application is in no way endorsed nor supported by Revolut.
