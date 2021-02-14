@@ -12,15 +12,15 @@ Feel free to open a new issue for any suggestion you might have or start contrib
 ## How to
 Set a python 3.8 environment. If you are not familiar with python, I suggest that you use [Anaconda](https://www.anaconda.com/products/individual#Downloads).
 
-Open a terminal and install the required dependencies (open the Anaconda prompt if you are using Windows).
+Open a terminal and install the required dependencies using the `requirements.txt` file (open the Anaconda prompt if you are using Windows).
 
 ```
->> pip install numpy pandas dateparser forex-python
+>> pip install -r /path/to/requirements.txt
 ```
 
 Collect all your Excel Revolut statement in a single folder and make sure that:
 * they cover the relevant period (they can also cover a longer period),
-* they have not been renamed `Revolut-[CUR]-*.csv`.
+* they have not been renamed - they should look like: `Revolut-[CUR]-*.csv`.
 
 Download the latest [release](https://github.com/pietropelizzari/revISEE/releases/latest) and unpack it. 
 Now you can either copy the `revISEE.py` script to the folder containing the statements, or you can use the `-p` path option at run time.
@@ -31,7 +31,7 @@ Remember to set the correct decimal and thousands separators depending on the la
 The command will look something like this:
 
 ```
->>> python revISEE.py -p "C:\Users\name\Documents\Revolut" -y 2019 --decsep ',' --thosep '.'
+>>> python revISEE.py -p "C:\Users\name\Documents\Revolut" -y 2019 --decsep , --thosep .
 ```
 
 Required packages:
