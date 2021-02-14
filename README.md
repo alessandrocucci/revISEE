@@ -1,4 +1,5 @@
 # revISEE
+Other languages: [English](README.md), [Italiano](README.it.md)
 
 Compute the averaged daily balance and the end of year balance for your Revolut account. 
 The implementation follows the algorithms described [here](https://www.agenziaentrate.gov.it/portale/it/web/guest/schede/comunicazioni/integrativa-archivio-dei-rapporti-con-operatori-finanziari/giacenza-media-annua).
@@ -50,7 +51,7 @@ Compute values required for italian ISEE from Revolut statements
 optional arguments:
   -h, --help            show this help message and exit
   -v, --verbose
-  -p PATH, --path PATH  path to statements path - default: cwd
+  -p PATH, --path PATH  path to statements folder - default: cwd
   -y YEAR, --year YEAR  year for computation - default: 2 years ago
   -c CURR, --curr CURR  target currency - default: EUR
   --decsep DECSEP       decimal separator - default: .

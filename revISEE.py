@@ -124,7 +124,7 @@ def parse_args():
                             action='store_true')
     arg_parser.add_argument('-p',
                             '--path',
-                            help='path to statements path - default: cwd')
+                            help='path to statements folder - default: cwd')
     arg_parser.add_argument('-y',
                             '--year',
                             help='year for computation - default: 2 years ago')
