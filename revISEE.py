@@ -99,7 +99,7 @@ class Statement:
                 balance = reduced_csv.iloc[-1, 6]
                 reduced_csv = reduced_csv.iloc[:-1, :]
 
-            logger.debug('Balance in {} on {}: {}'.format(day, self.currency, balance))
+            logger.debug('Balance on {}: {} {}'.format(day, balance, self.currency))
 
             total_daily_balance = total_daily_balance + (0 if balance == 0 else
                                                          (balance if self.currency == target_currency else
@@ -119,9 +119,6 @@ def parse_args():
                                          epilog='MIT License - Copyright (c) 2021 Pietro Pelizzari')
 
     # Add the arguments
-    arg_parser.add_argument('-v',
-                            '--verbose',
-                            action='store_true')
     arg_parser.add_argument('-p',
                             '--path',
                             help='path to statements folder - default: cwd')
@@ -135,9 +132,11 @@ def parse_args():
                             help='decimal separator - default: .')
     arg_parser.add_argument('--thosep',
                             help='thousands separator - default: ,')
+    arg_parser.add_argument('--logging',
+                            help='set logging level: 10 (DEBUG), 20 (INFO), 30 (WARNING) - default: 30 (WARNING)')
     arg_parser.add_argument('--detailed',
                             action='store_true',
-                            help='print balances for each currency')
+                            help='print balances for each currency')    
 
     # Execute the parse_args() method
     args = arg_parser.parse_args()
@@ -173,8 +172,8 @@ def main():
     else:
         statements_path = inputs.path
 
-    if inputs.verbose:
-        logger.setLevel(logging.INFO)
+    if inputs.logging is not None:
+        logger.setLevel(int(inputs.logging))
 
     # Import list of relevant files
     files = glob.glob(os.path.join(statements_path, "Revolut*.csv"))

@@ -50,15 +50,33 @@ Calcola i valori richiesti per l'ISEE italiano a partire dagli estratti conto di
 
 argomenti opzionali:
   -h, --help            mostra questo messaggio di aiuto e esce
-  -v, --verbose
   -p PATH, --path PATH  percorso della cartella contenente gli estratti conto - predefinito: cwd
   -y YEAR, --year YEAR  anno per il calcolo - predefinito: 2 anni fa
-  -c CURR, --curr CURR  valuta di destinazione - predefinita: EUR
+  -c CURR, --curr CURR  valuta di destinazione - predefinito: EUR
   --decsep DECSEP       separatore decimale - predefinito: .
   --thosep THOSEP       separatore delle migliaia - predefinito: ,
+  --logging LOGGING     imposta il livello di logging: 10 (DEBUG), 20 (INFO), 30 (WARNING) - predefinito: 30 (WARNING)
   --detailed            stampa i saldi per ogni valuta
 
 Licenza MIT - Copyright (c) 2021 Pietro Pelizzari
+
+
+
+usage: python revISEE.py [options]
+
+Compute values required for italian ISEE from Revolut statements
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -p PATH, --path PATH  path to statements folder - default: cwd
+  -y YEAR, --year YEAR  year for computation - default: 2 years ago
+  -c CURR, --curr CURR  target currency - default: EUR
+  --decsep DECSEP       decimal separator - default: .
+  --thosep THOSEP       thousands separator - default: ,
+  --detailed            print balances for each currency
+  -v VERB, --verb VERB  set logging level: 10 (DEBUG), 20 (INFO), 30 (WARNING) - default: 30 (WARNING)
+
+MIT License - Copyright (c) 2021 Pietro Pelizzari
 ```
 
 ## Disclaimer

@@ -50,12 +50,12 @@ Compute values required for italian ISEE from Revolut statements
 
 optional arguments:
   -h, --help            show this help message and exit
-  -v, --verbose
   -p PATH, --path PATH  path to statements folder - default: cwd
   -y YEAR, --year YEAR  year for computation - default: 2 years ago
   -c CURR, --curr CURR  target currency - default: EUR
   --decsep DECSEP       decimal separator - default: .
   --thosep THOSEP       thousands separator - default: ,
+  --logging LOGGING     set logging level: 10 (DEBUG), 20 (INFO), 30 (WARNING) - default: 30 (WARNING)
   --detailed            print balances for each currency
 
 MIT License - Copyright (c) 2021 Pietro Pelizzari
