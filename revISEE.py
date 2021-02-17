@@ -166,8 +166,8 @@ def main():
     if inputs.year is None:
         user_year = date.today().year - 2
     else:
-        user_year = inputs.year
-
+        user_year = int(inputs.year)
+        
     if inputs.path is None:
         statements_path = os.getcwd()
     else:
